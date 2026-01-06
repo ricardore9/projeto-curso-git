@@ -1,0 +1,459 @@
+/* Reset and Base Styles */
+:root {
+    --primary-color: #e50914;
+    --dark-bg: #141414;
+    --light-text: #fff;
+    --gray-text: #aaa;
+    --header-height: 68px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    font-family: 'Roboto', sans-serif;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: var(--light-text);
+}
+
+ul {
+    list-style: none;
+}
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 100;
+    padding: 0 4%; /* Typically Netflix has 4% padding on sides */
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, rgba(0,0,0,0));
+    transition: background-color 0.4s ease;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+}
+
+.navbar.scrolled {
+    background-color: var(--dark-bg);
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.logo {
+    color: var(--primary-color);
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+/* Mobile Menu Hamburger */
+.hamburger {
+    display: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #fff;
+    margin-right: 20px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+}
+
+.nav-links li a {
+    color: #e5e5e5;
+    transition: color 0.3s;
+}
+
+.nav-links li a:hover, .nav-links li a.active {
+    color: #fff;
+    font-weight: 500;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.profile-icon {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.profile-icon img {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+}
+
+.profile-icon .fa-caret-down {
+    font-size: 12px;
+    transition: transform 0.3s;
+}
+
+.profile-icon:hover .fa-caret-down {
+    transform: rotate(180deg);
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 80vh; /* Takes up most of the viewport */
+    width: 100%;
+    /* Using a placeholder image for coding/tech */
+    background: url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    padding-left: 4%;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Gradient to make text readable and fade into bottom content */
+    background: linear-gradient(to top, var(--dark-bg) 0%, transparent 20%, rgba(0,0,0,0.4) 60%);
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 600px;
+    margin-top: 60px; /* Slight offset for navbar */
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    color: #fff;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    padding: 0.8rem 1.8rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #fff;
+    color: #000;
+}
+
+.btn-primary:hover {
+    background-color: rgba(255, 255, 255, 0.75);
+}
+
+.btn-secondary {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(109, 109, 110, 0.4);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 200;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: #000;
+    width: 80%;
+    max-width: 900px;
+    position: relative;
+    box-shadow: 0 4px 8px 0 rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+.close-modal {
+    color: #aaa;
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 201;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: var(--header-height);
+        left: 0;
+        width: 100%;
+        background-color: rgba(0,0,0,0.95);
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid #333;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+        max-width: 100%;
+        padding-right: 20px;
+    }
+
+    .logo-container {
+        gap: 15px;
+    }
+}
+
+/* Carousel Layout */
+.main-content {
+    margin-top: -150px; /* Pull content up over hero bottom */
+    position: relative;
+    z-index: 20;
+    padding-bottom: 50px;
+    background: transparent; /* Gradient from hero handles the transition */
+}
+
+.carousel-container {
+    margin-bottom: 3vw;
+    padding: 0 4%;
+}
+
+.carousel-title {
+    font-size: 1.4vw;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #e5e5e5;
+    transition: color 0.3s;
+}
+
+@media (max-width: 800px) {
+    .carousel-title {
+        font-size: 18px;
+    }
+}
+
+.carousel-title:hover {
+    color: #fff;
+    cursor: pointer;
+}
+
+.carousel-wrapper {
+    position: relative;
+}
+
+.carousel {
+    display: flex;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    gap: 10px;
+    padding: 20px 0; /* Space for hover expansion */
+    scrollbar-width: none; /* Firefox */
+}
+
+.carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* Card Styling */
+.card {
+    position: relative;
+    flex: 0 0 auto;
+    width: 200px; /* Fixed width for simplicity, or use % */
+    height: 112px; /* 16:9 ratio approx */
+    border-radius: 4px;
+    transition: transform 0.3s ease, z-index 0.3s;
+    cursor: pointer;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Hover Effect - The "Netflix Scale" */
+.card:hover {
+    transform: scale(1.3); /* Matches the requested hover effect */
+    z-index: 99;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.75);
+}
+
+/* Navigation Arrows */
+.arrow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4%;
+    background-color: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.carousel-wrapper:hover .arrow {
+    opacity: 1;
+}
+
+.left-arrow {
+    left: 0;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.right-arrow {
+    right: 0;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.arrow:hover {
+    background-color: rgba(0,0,0,0.7);
+    transform: scale(1.1);
+}
+
+.arrow i {
+    font-size: 2rem;
+}
+
+/* Footer */
+.footer {
+    margin-top: 50px;
+    padding: 50px 0;
+    color: grey;
+    text-align: center;
+    font-size: 13px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.footer-links a {
+    color: grey;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+/* Responsiveness for Cards */
+@media (min-width: 1400px) {
+    .card { width: 250px; height: 140px; }
+}
+
+@media (max-width: 500px) {
+    .card { width: 140px; height: 80px; }
+    .hero-buttons .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
