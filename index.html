@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Cursos - Aprenda Agora</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <div class="logo-container">
+                <h1 class="logo">CURSOSFLIX</h1>
+                <div class="hamburger" id="hamburger-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="#" class="active">Início</a></li>
+                    <li><a href="#">Séries</a></li>
+                    <li><a href="#">Filmes</a></li>
+                    <li><a href="#">Bombando</a></li>
+                    <li><a href="#">Minha Lista</a></li>
+                </ul>
+            </div>
+            <div class="profile-container">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-bell"></i>
+                <div class="profile-icon">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png" alt="Profile">
+                    <i class="fas fa-caret-down"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Domine o Front-end</h1>
+            <p class="hero-description">
+                Aprenda a construir interfaces modernas, responsivas e interativas.
+                Neste curso completo, você vai do zero ao avançado em HTML, CSS e JavaScript.
+                O futuro da web está em suas mãos.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" id="btn-assistir"><i class="fas fa-play"></i> Assistir</button>
+                <button class="btn btn-secondary"><i class="fas fa-info-circle"></i> Mais Informações</button>
+            </div>
+        </div>
+        <div class="hero-overlay"></div>
+    </header>
+
+    <!-- Video Modal -->
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="video-container">
+                <!-- Using a placeholder iframe for demonstration -->
+                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rest of content will follow -->
+    <!-- Carousels Section -->
+    <main class="main-content">
+
+        <!-- Row 1: Em Alta -->
+        <section class="carousel-container">
+            <h2 class="carousel-title">Em Alta</h2>
+            <div class="carousel-wrapper">
+                <button class="arrow left-arrow" onclick="scrollCarousel('carousel1', -300)"><i class="fas fa-chevron-left"></i></button>
+                <div class="carousel" id="carousel1">
+                    <!-- Cards will be populated here -->
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso">
+                    </div>
+                    <!-- Repeat cards for demo -->
+                    <div class="card"><img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1504639725590-34d0984388bd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1516116216624-53e697fedbea?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Curso"></div>
+                </div>
+                <button class="arrow right-arrow" onclick="scrollCarousel('carousel1', 300)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+
+        <!-- Row 2: Desenvolvimento Mobile -->
+        <section class="carousel-container">
+            <h2 class="carousel-title">Desenvolvimento Mobile</h2>
+            <div class="carousel-wrapper">
+                <button class="arrow left-arrow" onclick="scrollCarousel('carousel2', -300)"><i class="fas fa-chevron-left"></i></button>
+                <div class="carousel" id="carousel2">
+                    <div class="card"><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Mobile"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1526498460520-4c246339dccb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Mobile"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Mobile"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Mobile"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1556656793-0273884060ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Mobile"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1618477247222-ac59e698eb54?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Mobile"></div>
+                </div>
+                <button class="arrow right-arrow" onclick="scrollCarousel('carousel2', 300)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+
+         <!-- Row 3: Design e UI/UX -->
+         <section class="carousel-container">
+            <h2 class="carousel-title">Design & UI/UX</h2>
+            <div class="carousel-wrapper">
+                <button class="arrow left-arrow" onclick="scrollCarousel('carousel3', -300)"><i class="fas fa-chevron-left"></i></button>
+                <div class="carousel" id="carousel3">
+                    <div class="card"><img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Design"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1545235617-9465d2a55698?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Design"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1586717791821-3f44a5638d48?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Design"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Design"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1572044162444-ad6021102907?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Design"></div>
+                    <div class="card"><img src="https://images.unsplash.com/photo-1626785774573-4b799314346d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Design"></div>
+                </div>
+                <button class="arrow right-arrow" onclick="scrollCarousel('carousel3', 300)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="#">Sobre a Netflix Cursos</a>
+                <a href="#">Central de Ajuda</a>
+                <a href="#">Termos de Uso</a>
+                <a href="#">Privacidade</a>
+            </div>
+            <div class="copyright">
+                &copy; 2023 Netflix Cursos - Feito para Fins Educativos
+            </div>
+        </footer>
+
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
