@@ -61,6 +61,7 @@ foreach ($items as $item) {
             <a class="navbar-brand" href="index.php">Lista de Materiais</a>
             <div class="d-flex align-items-center">
                 <a href="index.php" class="btn btn-outline-light btn-sm me-2">Voltar</a>
+                <a href="profile.php" class="btn btn-outline-light btn-sm me-2">Meu Perfil</a>
                 <a href="logout.php" class="btn btn-outline-light btn-sm">Sair</a>
             </div>
         </div>

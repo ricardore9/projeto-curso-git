@@ -55,6 +55,7 @@ function getProgress($total, $bought) {
             <a class="navbar-brand" href="#">Lista de Materiais</a>
             <div class="d-flex align-items-center">
                 <span class="text-white me-3">Olá, <?php echo htmlspecialchars($username); ?></span>
+                <a href="profile.php" class="btn btn-outline-light btn-sm me-2">Meu Perfil</a>
                 <a href="logout.php" class="btn btn-outline-light btn-sm">Sair</a>
             </div>
         </div>
