@@ -14,7 +14,11 @@ Este é um sistema web para gerenciamento de listas de compras (materiais escola
     *   `list_items`
     *   `list_shares`
     *   `password_resets`
-    *   **Nota:** A tabela `users` foi atualizada para incluir o campo `email`. Se você já instalou a versão anterior, exclua as tabelas e importe o `database.sql` novamente.
+
+    **IMPORTANTE - Se você já tem o sistema instalado:**
+    NÃO use o arquivo `database.sql` novamente e NÃO apague suas tabelas, ou você perderá seus dados!
+
+    Para atualizar seu banco de dados existente, use o arquivo **`update_db.sql`**. Ele vai apenas adicionar o campo de e-mail e a nova tabela de recuperação de senha, mantendo seus dados intactos.
 
 ### 2. Configuração
 
