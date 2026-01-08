@@ -13,6 +13,8 @@ Este é um sistema web para gerenciamento de listas de compras (materiais escola
     *   `shopping_lists`
     *   `list_items`
     *   `list_shares`
+    *   `password_resets`
+    *   **Nota:** A tabela `users` foi atualizada para incluir o campo `email`. Se você já instalou a versão anterior, exclua as tabelas e importe o `database.sql` novamente.
 
 ### 2. Configuração
 

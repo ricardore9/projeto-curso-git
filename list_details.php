@@ -75,6 +75,9 @@ foreach ($items as $item) {
                 </div>
                 <div>
                     <span class="badge bg-success fs-6">Total Pago: R$ <span id="totalDisplay"><?php echo number_format($total_price, 2, ',', '.'); ?></span></span>
+                    <button class="btn btn-sm btn-outline-secondary ms-2" id="btnSendEmail">
+                        <i class="fas fa-envelope"></i> E-mail
+                    </button>
                     <?php if ($list['permission'] === 'owner'): ?>
                         <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#shareModal">
                             <i class="fas fa-share-alt"></i> Compartilhar
@@ -249,6 +252,35 @@ foreach ($items as $item) {
                 }
             });
         }
+
+        // Send Email
+        document.getElementById('btnSendEmail').addEventListener('click', function() {
+            if(!confirm('Deseja enviar esta lista para o seu e-mail?')) return;
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            fetch('api/send_list_email.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `list_id=${listId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Lista enviada para o seu e-mail!');
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+                document.getElementById('btnSendEmail').disabled = false;
+                document.getElementById('btnSendEmail').innerHTML = '<i class="fas fa-envelope"></i> E-mail';
+            })
+            .catch(() => {
+                alert('Erro na comunicação com o servidor.');
+                document.getElementById('btnSendEmail').disabled = false;
+                document.getElementById('btnSendEmail').innerHTML = '<i class="fas fa-envelope"></i> E-mail';
+            });
+        });
 
         // Load Users for Sharing
         const shareModal = document.getElementById('shareModal');

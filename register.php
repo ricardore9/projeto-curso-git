@@ -7,24 +7,30 @@ $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $confirm_email = trim($_POST['confirm_email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    if (empty($username) || empty($password) || empty($confirm_password)) {
+    if (empty($username) || empty($email) || empty($confirm_email) || empty($password) || empty($confirm_password)) {
         $error = "Por favor, preencha todos os campos.";
+    } elseif ($email != $confirm_email) {
+        $error = "Os e-mails não coincidem.";
     } elseif ($password != $confirm_password) {
         $error = "As senhas não coincidem.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "E-mail inválido.";
     } else {
-        // Check if username exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username");
-        $stmt->execute(['username' => $username]);
+        // Check if username or email exists
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username OR email = :email");
+        $stmt->execute(['username' => $username, 'email' => $email]);
         if ($stmt->rowCount() > 0) {
-            $error = "Este nome de usuário já existe.";
+            $error = "Este nome de usuário ou e-mail já existe.";
         } else {
             // Insert new user
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (:username, :password)");
-            if ($stmt->execute(['username' => $username, 'password' => $hashed_password])) {
+            $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (:username, :email, :password)");
+            if ($stmt->execute(['username' => $username, 'email' => $email, 'password' => $hashed_password])) {
                 $success = "Conta criada com sucesso! <a href='login.php'>Faça login aqui</a>.";
             } else {
                 $error = "Algo deu errado. Tente novamente.";
@@ -54,7 +60,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form method="post" action="">
             <div class="mb-3">
                 <label class="form-label">Usuário</label>
-                <input type="text" name="username" class="form-control" required>
+                <input type="text" name="username" class="form-control" required value="<?php echo isset($username) ? htmlspecialchars($username) : ''; ?>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" name="email" class="form-control" required value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Confirmar E-mail</label>
+                <input type="email" name="confirm_email" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Senha</label>

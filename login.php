@@ -10,14 +10,15 @@ if (isLoggedIn()) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
+    $login_input = trim($_POST['username']); // Can be username or email
     $password = $_POST['password'];
 
-    if (empty($username) || empty($password)) {
+    if (empty($login_input) || empty($password)) {
         $error = "Por favor, preencha todos os campos.";
     } else {
-        $stmt = $pdo->prepare("SELECT id, username, password FROM users WHERE username = :username");
-        $stmt->execute(['username' => $username]);
+        // Prepare statement to check both username and email
+        $stmt = $pdo->prepare("SELECT id, username, password FROM users WHERE username = :input OR email = :input");
+        $stmt->execute(['input' => $login_input]);
 
         if ($stmt->rowCount() == 1) {
             $row = $stmt->fetch();
@@ -31,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error = "Senha inválida.";
             }
         } else {
-            $error = "Usuário não encontrado.";
+            $error = "Usuário ou e-mail não encontrado.";
         }
     }
 }
@@ -53,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
         <form method="post" action="">
             <div class="mb-3">
-                <label class="form-label">Usuário</label>
+                <label class="form-label">Usuário ou E-mail</label>
                 <input type="text" name="username" class="form-control" required>
             </div>
             <div class="mb-3">
@@ -62,7 +63,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <button type="submit" class="btn btn-primary w-100">Entrar</button>
         </form>
-        <p class="mt-3 text-center">Não tem conta? <a href="register.php">Cadastre-se</a></p>
+        <div class="text-center mt-3">
+            <p class="mb-1"><a href="forgot_password.php">Esqueci minha senha</a></p>
+            <p>Não tem conta? <a href="register.php">Cadastre-se</a></p>
+        </div>
     </div>
 </body>
 </html>
