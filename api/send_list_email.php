@@ -11,7 +11,13 @@ if (!isLoggedIn()) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $list_id = $_POST['list_id'];
+    $target_email = trim($_POST['target_email']);
     $user_id = getCurrentUserId();
+
+    if (!empty($target_email) && !filter_var($target_email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['success' => false, 'message' => 'E-mail inválido.']);
+        exit;
+    }
 
     // Verify Access
     $stmt = $pdo->prepare("
@@ -28,7 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    $email = $list_info['user_email'];
+    // Use provided email or fallback to user's registered email
+    $email = !empty($target_email) ? $target_email : $list_info['user_email'];
     $list_title = htmlspecialchars($list_info['title']);
 
     // Fetch Items

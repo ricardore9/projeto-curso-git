@@ -21,17 +21,28 @@ $my_lists = $stmt->fetchAll();
 
 // Fetch Shared Lists
 $stmt = $pdo->prepare("
-    SELECT sl.*, ls.permission_level, u.username as owner_name,
+    SELECT sl.*, ls.permission_level, ls.status, u.username as owner_name,
     (SELECT COUNT(*) FROM list_items li WHERE li.list_id = sl.id) as total_items,
     (SELECT COUNT(*) FROM list_items li WHERE li.list_id = sl.id AND li.is_purchased = 1) as bought_items
     FROM shopping_lists sl
     JOIN list_shares ls ON sl.id = ls.list_id
     JOIN users u ON sl.user_id = u.id
     WHERE ls.user_id = :user_id
-    ORDER BY sl.created_at DESC
+    ORDER BY ls.status DESC, sl.created_at DESC
 ");
 $stmt->execute(['user_id' => $user_id]);
-$shared_lists = $stmt->fetchAll();
+$all_shared_lists = $stmt->fetchAll();
+
+$pending_lists = [];
+$accepted_lists = [];
+
+foreach ($all_shared_lists as $l) {
+    if ($l['status'] == 'accepted') {
+        $accepted_lists[] = $l;
+    } else {
+        $pending_lists[] = $l;
+    }
+}
 
 // Helper to calculate progress
 function getProgress($total, $bought) {
@@ -100,11 +111,34 @@ function getProgress($total, $bought) {
             <?php endif; ?>
         </div>
 
+        <!-- Pending Shares -->
+        <?php if (!empty($pending_lists)): ?>
+            <h3 class="mt-4 mb-3 text-warning">Convites Pendentes</h3>
+            <div class="row">
+                <?php foreach ($pending_lists as $list): ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm h-100 border-warning">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo htmlspecialchars($list['title']); ?></h5>
+                                <p class="card-text text-muted small">
+                                    <strong><?php echo htmlspecialchars($list['owner_name']); ?></strong> quer compartilhar esta lista com você.
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button onclick="respondShare(<?php echo $list['id']; ?>, 'accept')" class="btn btn-success flex-grow-1">Aceitar</button>
+                                    <button onclick="respondShare(<?php echo $list['id']; ?>, 'reject')" class="btn btn-outline-danger flex-grow-1">Recusar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Shared Lists -->
-        <?php if (!empty($shared_lists)): ?>
+        <?php if (!empty($accepted_lists)): ?>
             <h3 class="mt-4 mb-3">Compartilhadas Comigo</h3>
             <div class="row">
-                <?php foreach ($shared_lists as $list): ?>
+                <?php foreach ($accepted_lists as $list): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card shadow-sm h-100 border-info">
                             <div class="card-body">
@@ -176,6 +210,24 @@ function getProgress($total, $bought) {
                 }
             });
         });
+
+        function respondShare(listId, action) {
+            if (action === 'reject' && !confirm('Tem certeza que deseja recusar este convite?')) return;
+
+            fetch('api/respond_share.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `list_id=${listId}&action=${action}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            });
+        }
     </script>
 </body>
 </html>

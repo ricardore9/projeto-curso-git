@@ -20,6 +20,9 @@ Este é um sistema web para gerenciamento de listas de compras (materiais escola
 
     Para atualizar seu banco de dados existente, use o arquivo **`update_db.sql`**. Ele vai apenas adicionar o campo de e-mail e a nova tabela de recuperação de senha, mantendo seus dados intactos.
 
+    **Atualização V2 (Comentários e Status de Compartilhamento):**
+    Execute também o arquivo **`update_db_v2.sql`** para adicionar as tabelas de comentários, observações e o status de aceitação dos compartilhamentos.
+
 ### 2. Configuração
 
 O arquivo `config.php` já está configurado com as credenciais fornecidas:

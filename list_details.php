@@ -38,6 +38,17 @@ $stmt = $pdo->prepare("SELECT * FROM list_items WHERE list_id = :list_id ORDER B
 $stmt->execute(['list_id' => $list_id]);
 $items = $stmt->fetchAll();
 
+// Fetch Comments
+$stmt = $pdo->prepare("
+    SELECT lc.*, u.username
+    FROM list_comments lc
+    JOIN users u ON lc.user_id = u.id
+    WHERE lc.list_id = :list_id
+    ORDER BY lc.created_at ASC
+");
+$stmt->execute(['list_id' => $list_id]);
+$comments = $stmt->fetchAll();
+
 $total_price = 0;
 foreach ($items as $item) {
     if ($item['is_purchased']) {
@@ -76,7 +87,7 @@ foreach ($items as $item) {
                 </div>
                 <div>
                     <span class="badge bg-success fs-6">Total Pago: R$ <span id="totalDisplay"><?php echo number_format($total_price, 2, ',', '.'); ?></span></span>
-                    <button class="btn btn-sm btn-outline-secondary ms-2" id="btnSendEmail">
+                    <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#emailModal">
                         <i class="fas fa-envelope"></i> E-mail
                     </button>
                     <?php if ($list['permission'] === 'owner'): ?>
@@ -87,6 +98,17 @@ foreach ($items as $item) {
                 </div>
             </div>
             <div class="card-body">
+
+                <!-- Notes Section -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted">Observações:</label>
+                    <textarea id="listNotes" class="form-control" rows="2"
+                              <?php echo !$can_edit ? 'readonly' : ''; ?>
+                              placeholder="<?php echo $can_edit ? 'Adicione observações aqui...' : 'Nenhuma observação.'; ?>"><?php echo htmlspecialchars($list['notes'] ?? ''); ?></textarea>
+                    <?php if ($can_edit): ?>
+                        <div id="notesStatus" class="form-text text-success d-none"><i class="fas fa-check"></i> Salvo</div>
+                    <?php endif; ?>
+                </div>
 
                 <?php if ($can_edit): ?>
                     <!-- Add Item Form -->
@@ -139,6 +161,49 @@ foreach ($items as $item) {
                 </div>
 
             </div>
+
+            <!-- Comments Section -->
+            <div class="card-footer bg-light">
+                <h5 class="mb-3">Comentários</h5>
+                <div id="commentsList" class="mb-3" style="max-height: 300px; overflow-y: auto;">
+                    <?php foreach ($comments as $msg): ?>
+                        <div class="mb-2">
+                            <strong><?php echo htmlspecialchars($msg['username']); ?>:</strong>
+                            <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
+                            <br><small class="text-muted" style="font-size: 0.75rem;"><?php echo date('d/m/Y H:i', strtotime($msg['created_at'])); ?></small>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php if (empty($comments)): ?>
+                        <p class="text-muted small">Nenhum comentário ainda.</p>
+                    <?php endif; ?>
+                </div>
+                <form id="commentForm" class="d-flex">
+                    <input type="text" id="commentMsg" class="form-control me-2" placeholder="Escreva um comentário..." required>
+                    <button type="submit" class="btn btn-secondary">Enviar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Modal -->
+    <div class="modal fade" id="emailModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Enviar por E-mail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="emailForm">
+                        <div class="mb-3">
+                            <label class="form-label">E-mail de Destino</label>
+                            <input type="email" name="target_email" class="form-control" placeholder="Deixe em branco para usar seu e-mail" value="">
+                            <div class="form-text">Se vazio, envia para seu e-mail cadastrado.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Enviar</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -154,10 +219,8 @@ foreach ($items as $item) {
                     <form id="shareForm">
                         <input type="hidden" name="list_id" value="<?php echo $list_id; ?>">
                         <div class="mb-3">
-                            <label class="form-label">Usuário</label>
-                            <select id="userSelect" name="user_id" class="form-select" required>
-                                <option value="">Carregando usuários...</option>
-                            </select>
+                            <label class="form-label">Usuário ou E-mail</label>
+                            <input type="text" name="target_user" class="form-control" placeholder="Digite o nome de usuário ou e-mail exato" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Permissão</label>
@@ -254,50 +317,83 @@ foreach ($items as $item) {
             });
         }
 
+        // Auto-save Notes
+        const notesInput = document.getElementById('listNotes');
+        if (notesInput && !notesInput.readOnly) {
+            let timeoutId;
+            notesInput.addEventListener('input', function() {
+                document.getElementById('notesStatus').classList.add('d-none');
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    fetch('api/update_notes.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `list_id=${listId}&notes=${encodeURIComponent(this.value)}`
+                    }).then(r => r.json()).then(d => {
+                        if(d.success) document.getElementById('notesStatus').classList.remove('d-none');
+                    });
+                }, 1000);
+            });
+        }
+
         // Send Email
-        document.getElementById('btnSendEmail').addEventListener('click', function() {
-            if(!confirm('Deseja enviar esta lista para o seu e-mail?')) return;
+        const emailModal = document.getElementById('emailModal');
+        if (emailModal) {
+            document.getElementById('emailForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = this.querySelector('button');
+                const originalText = btn.textContent;
+                const email = this.querySelector('input[name="target_email"]').value;
 
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+                btn.disabled = true;
+                btn.textContent = 'Enviando...';
 
-            fetch('api/send_list_email.php', {
+                fetch('api/send_list_email.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `list_id=${listId}&target_email=${encodeURIComponent(email)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('E-mail enviado com sucesso!');
+                        const modal = bootstrap.Modal.getInstance(emailModal);
+                        modal.hide();
+                    } else {
+                        alert('Erro: ' + data.message);
+                    }
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                });
+            });
+        }
+
+        // Comments
+        document.getElementById('commentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const msgInput = document.getElementById('commentMsg');
+            const msg = msgInput.value;
+
+            fetch('api/add_comment.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `list_id=${listId}`
+                body: `list_id=${listId}&message=${encodeURIComponent(msg)}`
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Lista enviada para o seu e-mail!');
+                    location.reload();
                 } else {
-                    alert('Erro: ' + data.message);
+                    alert('Erro ao enviar comentário.');
                 }
-                document.getElementById('btnSendEmail').disabled = false;
-                document.getElementById('btnSendEmail').innerHTML = '<i class="fas fa-envelope"></i> E-mail';
-            })
-            .catch(() => {
-                alert('Erro na comunicação com o servidor.');
-                document.getElementById('btnSendEmail').disabled = false;
-                document.getElementById('btnSendEmail').innerHTML = '<i class="fas fa-envelope"></i> E-mail';
             });
         });
 
-        // Load Users for Sharing
+        // Share List
         const shareModal = document.getElementById('shareModal');
         if (shareModal) {
-            shareModal.addEventListener('show.bs.modal', function () {
-                fetch('api/get_users.php')
-                .then(response => response.json())
-                .then(users => {
-                    const select = document.getElementById('userSelect');
-                    select.innerHTML = '<option value="">Selecione um usuário...</option>';
-                    users.forEach(user => {
-                        select.innerHTML += `<option value="${user.id}">${user.username}</option>`;
-                    });
-                });
-            });
-
             document.getElementById('shareForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
@@ -309,7 +405,7 @@ foreach ($items as $item) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Lista compartilhada com sucesso!');
+                        alert('Convite de compartilhamento enviado!');
                         const modal = bootstrap.Modal.getInstance(shareModal);
                         modal.hide();
                     } else {
