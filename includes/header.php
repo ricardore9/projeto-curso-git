@@ -30,8 +30,9 @@ if (!defined('BASE_URL')) {
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
     <div class="container">
-        <a class="navbar-brand" href="<?php echo BASE_URL; ?>">
-            <i class="fas fa-church me-2"></i>Agenda da CESE
+        <a class="navbar-brand d-flex align-items-center" href="<?php echo BASE_URL; ?>">
+            <img src="<?php echo BASE_URL; ?>assets/img/logo-cese-br.png" alt="Logo CESE" style="height: 40px;" class="me-2">
+            Agenda da CESE
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
