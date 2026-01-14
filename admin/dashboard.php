@@ -63,7 +63,15 @@ require_once '../includes/header.php';
         </div>
     </div>
 
-    <div class="row mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+             <a href="../leader/novo_evento.php" class="btn btn-primary btn-lg w-100 p-3 shadow-sm">
+                <i class="fas fa-plus-circle fa-lg me-2"></i> Cadastrar Novo Evento (Como Admin)
+             </a>
+        </div>
+    </div>
+
+    <div class="row mt-2">
         <div class="col-md-6 mb-3">
             <a href="departamentos.php" class="btn btn-secondary btn-lg w-100 p-4">
                 <i class="fas fa-layer-group fa-2x mb-2 d-block"></i>

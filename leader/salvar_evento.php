@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Validação de Segurança: O usuário realmente pertence ao departamento principal?
+    // Exceção: Admin pode criar para qualquer departamento
     if ($_SESSION['user_type'] !== 'admin') {
         $stmt = $pdo->prepare("SELECT 1 FROM usuario_departamentos WHERE usuario_id = ? AND departamento_id = ?");
         $stmt->execute([$_SESSION['user_id'], $departamento_id]);
@@ -82,7 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['flash_message'] = "Evento cadastrado com sucesso! Aguardando aprovação.";
         $_SESSION['flash_type'] = "success";
-        header("Location: dashboard.php");
+
+        // Redireciona para o painel correto
+        if ($_SESSION['user_type'] === 'admin') {
+            header("Location: ../admin/eventos.php?filtro=pendente");
+        } else {
+            header("Location: dashboard.php");
+        }
         exit;
 
     } catch (PDOException $e) {

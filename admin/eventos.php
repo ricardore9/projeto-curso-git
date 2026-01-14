@@ -134,17 +134,21 @@ require_once '../includes/header.php';
                                         <small><?php echo htmlspecialchars($evento['local_detalhe']); ?></small>
                                     </td>
                                     <td>
-                                        <?php if ($evento['precisa_midia']): ?>
-                                            <span class="badge bg-primary mb-1"><i class="fas fa-video me-1"></i>Mídia</span><br>
-                                        <?php endif; ?>
-                                        <?php if (!empty($evento['apoio_nomes'])): ?>
-                                            <small><strong>Apoio:</strong> <?php echo htmlspecialchars($evento['apoio_nomes']); ?></small>
-                                        <?php endif; ?>
-                                        <?php if (!empty($evento['observacoes'])): ?>
-                                            <button type="button" class="btn btn-sm btn-link p-0 d-block" data-bs-toggle="tooltip" title="<?php echo htmlspecialchars($evento['observacoes']); ?>">
-                                                Ver Obs.
-                                            </button>
-                                        <?php endif; ?>
+                                        <!-- Botão Modal -->
+                                        <button type="button" class="btn btn-sm btn-info text-white"
+                                            onclick="openEventModal(<?php echo htmlspecialchars(json_encode([
+                                                'titulo' => $evento['titulo'],
+                                                'dept' => $evento['dept_principal'],
+                                                'inicio' => date('d/m/Y H:i', strtotime($evento['data_evento'] . ' ' . $evento['hora_inicio'])),
+                                                'fim' => ($evento['data_termino'] ? date('d/m/Y', strtotime($evento['data_termino'])) : '') . ' ' . ($evento['hora_termino'] ? date('H:i', strtotime($evento['hora_termino'])) : ''),
+                                                'local_tipo' => $evento['local_tipo'] === 'igreja' ? 'Na Igreja' : 'Externo',
+                                                'local_detalhe' => $evento['local_detalhe'],
+                                                'midia' => $evento['precisa_midia'] ? 'Sim' : 'Não',
+                                                'apoio' => $evento['apoio_nomes'] ?? 'Nenhum',
+                                                'obs' => $evento['observacoes']
+                                            ])); ?>)">
+                                            <i class="fas fa-eye me-1"></i> Ver Detalhes
+                                        </button>
                                     </td>
                                     <td>
                                         <?php
@@ -156,6 +160,8 @@ require_once '../includes/header.php';
                                         <span class="badge <?php echo $badge; ?>"><?php echo ucfirst($evento['status']); ?></span>
                                     </td>
                                     <td class="text-end">
+                                        <a href="editar_evento.php?id=<?php echo $evento['id']; ?>" class="btn btn-sm btn-primary mb-1" title="Editar"><i class="fas fa-edit"></i></a>
+
                                         <?php if ($evento['status'] === 'pendente' || $evento['status'] === 'rejeitado'): ?>
                                             <form action="eventos.php" method="POST" class="d-inline">
                                                 <input type="hidden" name="action" value="approve">
@@ -184,11 +190,51 @@ require_once '../includes/header.php';
     </div>
 </div>
 
+<!-- Modal Detalhes -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalTitulo">Detalhes do Evento</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Departamento:</strong> <span id="modalDept"></span></p>
+        <p><strong>Início:</strong> <span id="modalInicio"></span></p>
+        <p><strong>Término:</strong> <span id="modalFim"></span></p>
+        <hr>
+        <p><strong>Local:</strong> <span id="modalLocal"></span> <span class="text-muted" id="modalLocalDetalhe"></span></p>
+        <p><strong>Precisa de Mídia?</strong> <span id="modalMidia"></span></p>
+        <p><strong>Apoio Solicitado:</strong> <span id="modalApoio"></span></p>
+        <div class="alert alert-light border">
+            <strong>Observações:</strong><br>
+            <span id="modalObs"></span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-  return new bootstrap.Tooltip(tooltipTriggerEl)
-})
+function openEventModal(data) {
+    document.getElementById('modalTitulo').innerText = data.titulo;
+    document.getElementById('modalDept').innerText = data.dept;
+    document.getElementById('modalInicio').innerText = data.inicio;
+    document.getElementById('modalFim').innerText = data.fim.trim() !== '' ? data.fim : 'N/A';
+
+    document.getElementById('modalLocal').innerText = data.local_tipo;
+    document.getElementById('modalLocalDetalhe').innerText = '(' + data.local_detalhe + ')';
+
+    document.getElementById('modalMidia').innerText = data.midia;
+    document.getElementById('modalApoio').innerText = data.apoio;
+    document.getElementById('modalObs').innerText = data.obs ? data.obs : 'Nenhuma observação.';
+
+    var myModal = new bootstrap.Modal(document.getElementById('eventModal'));
+    myModal.show();
+}
 </script>
 
 <?php require_once '../includes/footer.php'; ?>
