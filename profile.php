@@ -1,4 +1,9 @@
 <?php
+// Habilitar exibição de erros temporariamente para debug (se necessário, remova em produção)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once 'includes/db.php';
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -16,18 +21,23 @@ try {
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
 } catch (PDOException $e) {
-    die("Erro ao carregar perfil.");
+    die("Erro ao carregar perfil: " . $e->getMessage());
 }
 
 // Buscar departamentos (apenas se for líder para editar)
 $departamentos = [];
+$meus_depts = [];
 if ($user['tipo'] === 'lider') {
-    $stmt = $pdo->query("SELECT id, nome FROM departamentos ORDER BY nome ASC");
-    $departamentos = $stmt->fetchAll();
+    try {
+        $stmt = $pdo->query("SELECT id, nome FROM departamentos ORDER BY nome ASC");
+        $departamentos = $stmt->fetchAll();
 
-    $stmt_meus = $pdo->prepare("SELECT departamento_id FROM usuario_departamentos WHERE usuario_id = ?");
-    $stmt_meus->execute([$_SESSION['user_id']]);
-    $meus_depts = $stmt_meus->fetchAll(PDO::FETCH_COLUMN);
+        $stmt_meus = $pdo->prepare("SELECT departamento_id FROM usuario_departamentos WHERE usuario_id = ?");
+        $stmt_meus->execute([$_SESSION['user_id']]);
+        $meus_depts = $stmt_meus->fetchAll(PDO::FETCH_COLUMN);
+    } catch (PDOException $e) {
+        // Erro silencioso ou log
+    }
 }
 
 // Processar atualização
@@ -53,15 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $pdo->beginTransaction();
 
-                $sql = "UPDATE usuarios SET nome = ?, username = ?, email = ? ";
+                // Construção da Query
+                $sql = "UPDATE usuarios SET nome = ?, username = ?, email = ?";
                 $params = [$nome, $username, $email];
 
                 if (!empty($nova_senha)) {
-                    $sql .= ", senha = ? ";
+                    $sql .= ", senha = ?";
                     $params[] = password_hash($nova_senha, PASSWORD_DEFAULT);
                 }
 
-                $sql .= "WHERE id = ?";
+                $sql .= " WHERE id = ?";
                 $params[] = $_SESSION['user_id'];
 
                 $stmt = $pdo->prepare($sql);
@@ -69,7 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Atualizar Departamentos (se for líder)
                 if ($user['tipo'] === 'lider') {
+                    // Remover todos
                     $pdo->prepare("DELETE FROM usuario_departamentos WHERE usuario_id = ?")->execute([$_SESSION['user_id']]);
+
+                    // Inserir selecionados
                     if (!empty($depts_selecionados)) {
                         $stmt_d = $pdo->prepare("INSERT INTO usuario_departamentos (usuario_id, departamento_id) VALUES (?, ?)");
                         foreach ($depts_selecionados as $did) {
@@ -91,7 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
         } catch (Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             $erro = "Erro ao atualizar: " . $e->getMessage();
         }
     }
@@ -109,7 +125,7 @@ require_once 'includes/header.php';
                 </div>
                 <div class="card-body p-4">
                     <?php if (isset($erro)): ?>
-                        <div class="alert alert-danger"><?php echo $erro; ?></div>
+                        <div class="alert alert-danger"><?php echo htmlspecialchars($erro); ?></div>
                     <?php endif; ?>
 
                     <form method="POST">
