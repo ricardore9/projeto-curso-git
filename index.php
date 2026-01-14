@@ -21,7 +21,7 @@ if ($dept_id) {
     $params[] = $dept_id;
 }
 
-$sql .= " ORDER BY e.inicio ASC";
+$sql .= " ORDER BY e.data_evento ASC, e.hora_inicio ASC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -31,12 +31,22 @@ $eventos = $stmt->fetchAll();
 $calendar_events = [];
 foreach ($eventos as $ev) {
     $color = '#3788d8'; // Default blue
-    // Pode-se customizar cores por departamento aqui se desejar
+
+    // Concatenar Data e Hora para ISO8601
+    $start = $ev['data_evento'] . 'T' . $ev['hora_inicio'];
+
+    $end = null;
+    if ($ev['data_termino'] && $ev['hora_termino']) {
+        $end = $ev['data_termino'] . 'T' . $ev['hora_termino'];
+    } elseif ($ev['hora_termino']) {
+        // Se tem hora de termino mas não data (mesmo dia)
+        $end = $ev['data_evento'] . 'T' . $ev['hora_termino'];
+    }
 
     $calendar_events[] = [
         'title' => $ev['titulo'] . ' (' . $ev['dept_nome'] . ')',
-        'start' => $ev['inicio'],
-        'end' => $ev['fim'], // FullCalendar lida bem com null
+        'start' => $start,
+        'end' => $end,
         'backgroundColor' => $color,
         'borderColor' => $color,
         'extendedProps' => [
@@ -102,12 +112,10 @@ foreach ($eventos as $ev) {
                     <?php else: ?>
                         <div class="list-group">
                             <?php
-                            // Mostrar apenas eventos futuros na lista? Ou todos?
-                            // Vamos mostrar todos filtrados, mas destacar a data.
                             foreach ($eventos as $ev):
-                                $date = new DateTime($ev['inicio']);
+                                $start_dt = new DateTime($ev['data_evento'] . ' ' . $ev['hora_inicio']);
                                 $now = new DateTime();
-                                $is_past = $date < $now;
+                                $is_past = $start_dt < $now;
                                 $opacity = $is_past ? 'opacity-50' : '';
                             ?>
                                 <div class="list-group-item list-group-item-action p-4 <?php echo $opacity; ?>">
@@ -115,7 +123,10 @@ foreach ($eventos as $ev) {
                                         <h4 class="mb-1 text-primary"><?php echo htmlspecialchars($ev['titulo']); ?></h4>
                                         <small class="text-muted text-end">
                                             <i class="far fa-clock me-1"></i>
-                                            <?php echo $date->format('d/m/Y \à\s H:i'); ?>
+                                            <?php echo $start_dt->format('d/m/Y \à\s H:i'); ?>
+                                            <?php if ($ev['data_termino']): ?>
+                                                 <br>até <?php echo date('d/m/Y', strtotime($ev['data_termino'])); ?>
+                                            <?php endif; ?>
                                         </small>
                                     </div>
                                     <p class="mb-2"><span class="badge bg-secondary"><?php echo htmlspecialchars($ev['dept_nome']); ?></span></p>
@@ -166,10 +177,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (props.descricao) {
                 content += '<br><br><strong>Obs:</strong> ' + props.descricao;
             }
-            // Simples alert ou modal customizado.
-            // Para simplicidade usaremos alert, mas ideal seria um modal Bootstrap.
+            // Formatar data para exibição no alert
+            var startStr = info.event.start.toLocaleString();
+            var endStr = info.event.end ? '\nFim: ' + info.event.end.toLocaleString() : '';
+
             alert('Evento: ' + info.event.title + '\n\n' +
-                  'Início: ' + info.event.start.toLocaleString() + '\n' +
+                  'Início: ' + startStr + endStr + '\n' +
                   'Local: ' + props.local + ' (' + props.detalhe + ')\n\n' +
                   (props.descricao ? 'Obs: ' + props.descricao : '')
             );

@@ -10,8 +10,15 @@ if (!isset($_SESSION['user_id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo = trim($_POST['titulo']);
     $departamento_id = $_POST['departamento_id'];
-    $inicio = $_POST['inicio'];
-    $fim = !empty($_POST['fim']) ? $_POST['fim'] : NULL;
+
+    // Novos campos de data/hora
+    $data_evento = $_POST['data_evento'];
+    $hora_inicio = $_POST['hora_inicio'];
+
+    // Campos opcionais de término
+    $data_termino = !empty($_POST['data_termino']) ? $_POST['data_termino'] : NULL;
+    $hora_termino = !empty($_POST['hora_termino']) ? $_POST['hora_termino'] : NULL;
+
     $local_tipo = $_POST['local_tipo']; // 'igreja' or 'externo'
     $local_detalhe = trim($_POST['local_detalhe']);
     $precisa_midia = isset($_POST['precisa_midia']) ? 1 : 0;
@@ -19,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $observacoes = trim($_POST['observacoes']);
 
     // Validação Básica
-    if (empty($titulo) || empty($inicio) || empty($local_tipo)) {
+    if (empty($titulo) || empty($data_evento) || empty($hora_inicio) || empty($local_tipo)) {
         $_SESSION['flash_message'] = "Preencha os campos obrigatórios.";
         $_SESSION['flash_type'] = "danger";
         header("Location: novo_evento.php");
@@ -27,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Validação de Segurança: O usuário realmente pertence ao departamento principal?
-    // Exceção: Admin pode tudo, mas aqui focamos no líder.
     if ($_SESSION['user_type'] !== 'admin') {
         $stmt = $pdo->prepare("SELECT 1 FROM usuario_departamentos WHERE usuario_id = ? AND departamento_id = ?");
         $stmt->execute([$_SESSION['user_id'], $departamento_id]);
@@ -42,14 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // Inserir Evento
-        $sql = "INSERT INTO eventos (titulo, inicio, fim, local_tipo, local_detalhe, precisa_midia, observacoes, status, criado_por_id, departamento_principal_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)";
+        // Inserir Evento com novas colunas
+        $sql = "INSERT INTO eventos (titulo, data_evento, hora_inicio, data_termino, hora_termino, local_tipo, local_detalhe, precisa_midia, observacoes, status, criado_por_id, departamento_principal_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendente', ?, ?)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $titulo,
-            $inicio,
-            $fim,
+            $data_evento,
+            $hora_inicio,
+            $data_termino,
+            $hora_termino,
             $local_tipo,
             $local_detalhe,
             $precisa_midia,
@@ -64,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($apoio_ids)) {
             $stmt_apoio = $pdo->prepare("INSERT INTO evento_apoio (evento_id, departamento_id) VALUES (?, ?)");
             foreach ($apoio_ids as $apoio_dept_id) {
-                // Evitar duplicidade se o usuário selecionou o mesmo departamento principal como apoio
                 if ($apoio_dept_id != $departamento_id) {
                     $stmt_apoio->execute([$evento_id, $apoio_dept_id]);
                 }

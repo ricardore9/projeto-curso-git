@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// 1. Buscar departamentos do líder (para selecionar qual está promovendo o evento)
+// 1. Buscar departamentos do líder
 try {
     $stmt = $pdo->prepare("
         SELECT d.id, d.nome
@@ -25,12 +25,11 @@ try {
     $meus_departamentos = [];
 }
 
-// Se o líder não tem departamentos, ele não pode criar eventos
 if (empty($meus_departamentos) && $_SESSION['user_type'] !== 'admin') {
     die("Você não está vinculado a nenhum departamento. Contate o administrador.");
 }
 
-// 2. Buscar todos departamentos (para selecionar apoio)
+// 2. Buscar todos departamentos
 try {
     $stmt = $pdo->query("SELECT id, nome FROM departamentos ORDER BY nome ASC");
     $todos_departamentos = $stmt->fetchAll();
@@ -67,15 +66,37 @@ require_once '../includes/header.php';
                             <input type="text" class="form-control form-control-lg" name="titulo" id="titulo" placeholder="Ex: Ensaio Geral, Culto de Jovens" required>
                         </div>
 
-                        <!-- Datas -->
+                        <!-- Data e Hora de Início -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="inicio" class="form-label fs-5">Início</label>
-                                <input type="datetime-local" class="form-control form-control-lg" name="inicio" id="inicio" required>
+                                <label for="data_evento" class="form-label fs-5">Data do Evento</label>
+                                <input type="date" class="form-control form-control-lg" name="data_evento" id="data_evento" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="fim" class="form-label fs-5">Previsão de Término</label>
-                                <input type="datetime-local" class="form-control form-control-lg" name="fim" id="fim">
+                                <label for="hora_inicio" class="form-label fs-5">Horário de Início</label>
+                                <input type="time" class="form-control form-control-lg" name="hora_inicio" id="hora_inicio" required>
+                            </div>
+                        </div>
+
+                        <!-- Data e Hora de Término (Opcional) -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tem_termino" onchange="toggleTermino()">
+                                <label class="form-check-label fs-6" for="tem_termino">
+                                    Adicionar previsão de término
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="row d-none" id="div_termino">
+                            <div class="col-md-6 mb-3">
+                                <label for="data_termino" class="form-label fs-5">Data de Término</label>
+                                <input type="date" class="form-control form-control-lg" name="data_termino" id="data_termino">
+                                <div class="form-text">Preencha apenas se o evento acabar em outro dia.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="hora_termino" class="form-label fs-5">Horário de Término</label>
+                                <input type="time" class="form-control form-control-lg" name="hora_termino" id="hora_termino">
                             </div>
                         </div>
 
@@ -96,7 +117,7 @@ require_once '../includes/header.php';
 
                         <div class="mb-3">
                             <label for="local_detalhe" class="form-label">Detalhe do Local</label>
-                            <input type="text" class="form-control" name="local_detalhe" id="local_detalhe" placeholder="Ex: Templo Principal, Sala 3, ou Endereço Externo">
+                            <input type="text" class="form-control" name="local_detalhe" id="local_detalhe" placeholder="Ex: Templo Principal, Sala 3">
                         </div>
 
                         <hr>
@@ -150,6 +171,18 @@ function toggleLocalDetalhe(isExterno) {
     } else {
         input.placeholder = "Ex: Templo Principal, Sala 3";
         input.required = false;
+    }
+}
+
+function toggleTermino() {
+    const check = document.getElementById('tem_termino');
+    const div = document.getElementById('div_termino');
+    if (check.checked) {
+        div.classList.remove('d-none');
+    } else {
+        div.classList.add('d-none');
+        document.getElementById('data_termino').value = '';
+        document.getElementById('hora_termino').value = '';
     }
 }
 </script>

@@ -29,12 +29,14 @@ CREATE TABLE IF NOT EXISTS usuario_departamentos (
     FOREIGN KEY (departamento_id) REFERENCES departamentos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Tabela de Eventos
+-- Tabela de Eventos (Atualizada com datas separadas)
 CREATE TABLE IF NOT EXISTS eventos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(150) NOT NULL,
-    inicio DATETIME NOT NULL,
-    fim DATETIME DEFAULT NULL,
+    data_evento DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    data_termino DATE DEFAULT NULL,
+    hora_termino TIME DEFAULT NULL,
     local_tipo ENUM('igreja', 'externo') NOT NULL,
     local_detalhe VARCHAR(255),
     precisa_midia TINYINT(1) DEFAULT 0,
@@ -44,7 +46,8 @@ CREATE TABLE IF NOT EXISTS eventos (
     departamento_principal_id INT NOT NULL, -- O departamento "dono" do evento
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (criado_por_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (departamento_principal_id) REFERENCES departamentos(id) ON DELETE CASCADE
+    FOREIGN KEY (departamento_principal_id) REFERENCES departamentos(id) ON DELETE CASCADE,
+    INDEX idx_data_evento (data_evento)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabela de Apoio: Eventos podem ter apoio de outros departamentos

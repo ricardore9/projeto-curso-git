@@ -17,7 +17,7 @@ try {
         FROM eventos e
         LEFT JOIN departamentos d ON e.departamento_principal_id = d.id
         WHERE e.criado_por_id = ?
-        ORDER BY e.inicio DESC
+        ORDER BY e.data_evento DESC, e.hora_inicio DESC
     ");
     $stmt->execute([$_SESSION['user_id']]);
     $eventos = $stmt->fetchAll();
@@ -67,8 +67,14 @@ require_once '../includes/header.php';
                             <?php foreach ($eventos as $evento): ?>
                                 <tr>
                                     <td>
-                                        <strong><?php echo date('d/m/Y', strtotime($evento['inicio'])); ?></strong><br>
-                                        <small><?php echo date('H:i', strtotime($evento['inicio'])); ?></small>
+                                        <strong><?php echo date('d/m/Y', strtotime($evento['data_evento'])); ?></strong><br>
+                                        <small><?php echo date('H:i', strtotime($evento['hora_inicio'])); ?></small>
+                                        <?php if ($evento['hora_termino']): ?>
+                                            - <small><?php echo date('H:i', strtotime($evento['hora_termino'])); ?></small>
+                                        <?php endif; ?>
+                                        <?php if ($evento['data_termino']): ?>
+                                            <br><small class="text-muted">Fim: <?php echo date('d/m', strtotime($evento['data_termino'])); ?></small>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <strong><?php echo htmlspecialchars($evento['titulo']); ?></strong>

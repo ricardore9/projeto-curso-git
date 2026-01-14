@@ -47,7 +47,7 @@ if ($filtro === 'pendente') {
     $where = "WHERE e.status = 'rejeitado'";
 }
 
-// Query
+// Query (Ordenada por data_evento e hora_inicio)
 $sql = "
     SELECT
         e.*,
@@ -61,7 +61,7 @@ $sql = "
     LEFT JOIN departamentos da ON ea.departamento_id = da.id
     $where
     GROUP BY e.id
-    ORDER BY e.inicio ASC
+    ORDER BY e.data_evento ASC, e.hora_inicio ASC
 ";
 
 $stmt = $pdo->prepare($sql);
@@ -93,7 +93,7 @@ require_once '../includes/header.php';
                 <table class="table table-hover align-middle">
                     <thead class="table-dark">
                         <tr>
-                            <th>Data</th>
+                            <th>Data/Hora</th>
                             <th>Evento / Depto</th>
                             <th>Local</th>
                             <th>Detalhes</th>
@@ -110,8 +110,14 @@ require_once '../includes/header.php';
                             <?php foreach ($eventos as $evento): ?>
                                 <tr>
                                     <td>
-                                        <strong><?php echo date('d/m/Y', strtotime($evento['inicio'])); ?></strong><br>
-                                        <?php echo date('H:i', strtotime($evento['inicio'])); ?>
+                                        <strong><?php echo date('d/m/Y', strtotime($evento['data_evento'])); ?></strong><br>
+                                        <?php echo date('H:i', strtotime($evento['hora_inicio'])); ?>
+                                        <?php if ($evento['hora_termino']): ?>
+                                            - <?php echo date('H:i', strtotime($evento['hora_termino'])); ?>
+                                        <?php endif; ?>
+                                        <?php if ($evento['data_termino']): ?>
+                                            <br><small class="text-muted">até <?php echo date('d/m', strtotime($evento['data_termino'])); ?></small>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <strong><?php echo htmlspecialchars($evento['titulo']); ?></strong><br>
@@ -179,7 +185,6 @@ require_once '../includes/header.php';
 </div>
 
 <script>
-// Inicializar tooltips do Bootstrap
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
   return new bootstrap.Tooltip(tooltipTriggerEl)
