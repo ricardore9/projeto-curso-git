@@ -2,7 +2,7 @@
 
 <footer class="bg-dark text-white text-center py-4 mt-auto">
     <div class="container">
-        <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Agenda Igreja'; ?>. Todos os direitos reservados.</p>
+        <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : 'Agenda da CESE'; ?>. Todos os direitos reservados.</p>
     </div>
 </footer>
 

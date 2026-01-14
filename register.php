@@ -33,7 +33,12 @@ require_once 'includes/header.php';
                     </div>
 
                     <div class="mb-3">
-                        <label for="email" class="form-label fs-5">E-mail</label>
+                        <label for="username" class="form-label fs-5">Nome de Usuário (Login)</label>
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" required placeholder="Ex: joaosilva">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fs-5">E-mail (Recuperação de Senha)</label>
                         <input type="email" class="form-control form-control-lg" id="email" name="email" required>
                     </div>
 

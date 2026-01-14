@@ -6,7 +6,7 @@ define('DB_USER', 'covesa26_agendaCese');
 define('DB_PASS', '@cese2209');
 
 // Configurações Gerais
-define('SITE_NAME', 'Agenda Igreja');
+define('SITE_NAME', 'Agenda da CESE');
 
 // Detecção automática da URL Base
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";

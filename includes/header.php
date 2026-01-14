@@ -12,7 +12,7 @@ if (!defined('BASE_URL')) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo defined('SITE_NAME') ? SITE_NAME : 'Agenda Igreja'; ?></title>
+    <title><?php echo defined('SITE_NAME') ? SITE_NAME : 'Agenda da CESE'; ?></title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
@@ -31,7 +31,7 @@ if (!defined('BASE_URL')) {
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
     <div class="container">
         <a class="navbar-brand" href="<?php echo BASE_URL; ?>">
-            <i class="fas fa-church me-2"></i>Agenda Igreja
+            <i class="fas fa-church me-2"></i>Agenda da CESE
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
@@ -47,7 +47,9 @@ if (!defined('BASE_URL')) {
             <ul class="navbar-nav ms-auto">
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">
-                        <span class="nav-link text-white">Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                        <a class="nav-link text-white fw-bold" href="<?php echo BASE_URL; ?>profile.php">
+                            <i class="fas fa-user-circle me-1"></i> <?php echo htmlspecialchars($_SESSION['user_name']); ?>
+                        </a>
                     </li>
                     <li class="nav-item">
                         <?php if ($_SESSION['user_type'] === 'admin'): ?>

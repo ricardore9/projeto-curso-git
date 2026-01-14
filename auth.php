@@ -6,6 +6,7 @@ $action = $_POST['action'] ?? '';
 
 if ($action === 'register') {
     $nome = trim($_POST['nome']);
+    $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $senha = $_POST['senha'];
     $confirma_senha = $_POST['confirma_senha'];
@@ -26,11 +27,11 @@ if ($action === 'register') {
     }
 
     try {
-        // Verificar se email já existe
-        $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = ?");
-        $stmt->execute([$email]);
+        // Verificar se email ou username já existe
+        $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = ? OR username = ?");
+        $stmt->execute([$email, $username]);
         if ($stmt->fetch()) {
-            $_SESSION['flash_message'] = "E-mail já cadastrado.";
+            $_SESSION['flash_message'] = "E-mail ou Usuário já cadastrado.";
             $_SESSION['flash_type'] = "danger";
             header("Location: register.php");
             exit;
@@ -41,8 +42,8 @@ if ($action === 'register') {
         // Inserir usuário
         $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
         // Status padrão 'pendente'
-        $stmt = $pdo->prepare("INSERT INTO usuarios (nome, email, senha, tipo, status) VALUES (?, ?, ?, 'lider', 'pendente')");
-        $stmt->execute([$nome, $email, $senha_hash]);
+        $stmt = $pdo->prepare("INSERT INTO usuarios (nome, username, email, senha, tipo, status) VALUES (?, ?, ?, ?, 'lider', 'pendente')");
+        $stmt->execute([$nome, $username, $email, $senha_hash]);
         $user_id = $pdo->lastInsertId();
 
         // Inserir departamentos
@@ -67,12 +68,12 @@ if ($action === 'register') {
     }
 
 } elseif ($action === 'login') {
-    $email = trim($_POST['email']);
+    $username = trim($_POST['username']); // Agora usamos username
     $senha = $_POST['senha'];
 
     try {
-        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
-        $stmt->execute([$email]);
+        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE username = ?");
+        $stmt->execute([$username]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($senha, $user['senha'])) {
@@ -97,7 +98,7 @@ if ($action === 'register') {
             exit;
 
         } else {
-            $_SESSION['flash_message'] = "E-mail ou senha inválidos.";
+            $_SESSION['flash_message'] = "Usuário ou senha inválidos.";
             $_SESSION['flash_type'] = "danger";
             header("Location: login.php");
             exit;

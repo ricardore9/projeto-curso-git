@@ -2,11 +2,16 @@
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     tipo ENUM('admin', 'lider') NOT NULL DEFAULT 'lider',
     status ENUM('pendente', 'ativo') NOT NULL DEFAULT 'pendente',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    reset_token VARCHAR(100) DEFAULT NULL,
+    reset_expires DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_reset_token (reset_token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabela de Departamentos

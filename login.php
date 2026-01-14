@@ -11,13 +11,16 @@
                     <input type="hidden" name="action" value="login">
 
                     <div class="mb-3">
-                        <label for="email" class="form-label fs-5">E-mail</label>
-                        <input type="email" class="form-control form-control-lg" id="email" name="email" required autofocus>
+                        <label for="username" class="form-label fs-5">Usuário</label>
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" required autofocus>
                     </div>
 
                     <div class="mb-4">
                         <label for="senha" class="form-label fs-5">Senha</label>
                         <input type="password" class="form-control form-control-lg" id="senha" name="senha" required>
+                        <div class="text-end mt-1">
+                            <a href="forgot_password.php" class="text-decoration-none small">Esqueci minha senha</a>
+                        </div>
                     </div>
 
                     <div class="d-grid gap-2">

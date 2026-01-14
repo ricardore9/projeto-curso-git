@@ -62,6 +62,7 @@ require_once '../includes/header.php';
             <h2><i class="fas fa-users me-2"></i>Gerenciar Líderes e Usuários</h2>
         </div>
         <div class="col-md-4 text-end">
+             <a href="novo_usuario.php" class="btn btn-primary me-2"><i class="fas fa-plus"></i> Novo Usuário</a>
              <a href="dashboard.php" class="btn btn-secondary">Voltar ao Painel</a>
         </div>
     </div>
