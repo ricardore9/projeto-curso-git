@@ -63,13 +63,14 @@ if ($action === 'register') {
         $msg .= "<p><strong>Email:</strong> $email</p>";
         $msg .= "<p>Acesse o painel administrativo para aprovar.</p>";
 
-        $email_enviado = send_admin_notification($assunto, $msg);
+        $errorMsg = '';
+        $email_enviado = send_admin_notification($assunto, $msg, $errorMsg);
 
         if ($email_enviado) {
             $_SESSION['flash_message'] = "Cadastro realizado com sucesso! Notificação enviada. Aguarde a aprovação do administrador.";
             $_SESSION['flash_type'] = "success";
         } else {
-            $_SESSION['flash_message'] = "Cadastro realizado, mas <strong>erro ao notificar admin por email</strong>. Aguarde a aprovação.";
+            $_SESSION['flash_message'] = "Cadastro realizado, mas <strong>erro ao notificar admin</strong>: " . htmlspecialchars($errorMsg) . ". Aguarde a aprovação.";
             $_SESSION['flash_type'] = "warning";
         }
         header("Location: login.php");

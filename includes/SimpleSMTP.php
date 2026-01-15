@@ -5,6 +5,7 @@ class SimpleSMTP {
     private $user;
     private $pass;
     private $debug = false;
+    private $lastError = '';
 
     public function __construct($host, $port, $user, $pass) {
         $this->host = $host;
@@ -13,9 +14,14 @@ class SimpleSMTP {
         $this->pass = $pass;
     }
 
+    public function getLastError() {
+        return $this->lastError;
+    }
+
     public function send($to, $subject, $message, $fromName = "Agenda CESE") {
         $socket = fsockopen($this->host, $this->port, $errno, $errstr, 30);
         if (!$socket) {
+            $this->lastError = "Connection Error: $errstr ($errno)";
             error_log("SMTP Connect Error: $errstr ($errno)");
             return false;
         }
@@ -56,7 +62,8 @@ class SimpleSMTP {
         $response = $this->read($socket);
         // Códigos de sucesso SMTP começam com 2 ou 3
         if (!preg_match('/^[23]/', $response)) {
-            error_log("SMTP Error ($cmd): $response");
+            $this->lastError = "Command Failed: $cmd | Response: $response";
+            error_log("SMTP Error: " . $this->lastError);
             return false;
         }
         return true;
