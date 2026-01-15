@@ -20,6 +20,8 @@ if (!defined('BASE_URL')) {
     <!-- FullCalendar CSS (apenas carregado se necessário, mas pode deixar global) -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>assets/img/logo-cese.png">
+
     <style>
         body { font-size: 1.1rem; } /* Fonte um pouco maior para acessibilidade */
         .navbar-brand { font-size: 1.5rem; font-weight: bold; }
@@ -65,9 +67,6 @@ if (!defined('BASE_URL')) {
                 <?php else: ?>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="<?php echo BASE_URL; ?>login.php">Entrar</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-warning ms-2" href="<?php echo BASE_URL; ?>register.php">Cadastrar Líder</a>
                     </li>
                 <?php endif; ?>
             </ul>
