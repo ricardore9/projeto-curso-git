@@ -43,7 +43,9 @@ class SimpleSMTP {
         // Headers & Body
         $headers  = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: text/html; charset=UTF-8\r\n";
+        $headers .= "Date: " . date('r') . "\r\n";
         $headers .= "From: " . $fromName . " <" . $this->user . ">\r\n";
+        $headers .= "Reply-To: " . $this->user . "\r\n";
         $headers .= "To: <" . $to . ">\r\n";
         $headers .= "Subject: " . $subject . "\r\n";
         $headers .= "\r\n";
