@@ -10,7 +10,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
     exit;
 }
 
-// Ações
+// Ações (Approve, Reject) omitidas para brevidade, mantendo lógica existente...
+// ... (Copiar lógica POST existente) ...
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $evento_id = filter_input(INPUT_POST, 'evento_id', FILTER_VALIDATE_INT);
@@ -28,26 +29,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_type'] = "warning";
         }
     }
-    // Manter o filtro atual
     $filtro_atual = $_POST['filtro_atual'] ?? 'pendente';
     header("Location: eventos.php?filtro=" . $filtro_atual);
     exit;
 }
 
-// Filtros
+// Filtros e Query
 $filtro = $_GET['filtro'] ?? 'pendente';
 $where = "";
-$params = [];
+if ($filtro === 'pendente') $where = "WHERE e.status = 'pendente'";
+elseif ($filtro === 'aprovado') $where = "WHERE e.status = 'aprovado'";
+elseif ($filtro === 'rejeitado') $where = "WHERE e.status = 'rejeitado'";
 
-if ($filtro === 'pendente') {
-    $where = "WHERE e.status = 'pendente'";
-} elseif ($filtro === 'aprovado') {
-    $where = "WHERE e.status = 'aprovado'";
-} elseif ($filtro === 'rejeitado') {
-    $where = "WHERE e.status = 'rejeitado'";
-}
-
-// Query (Ordenada por data_evento e hora_inicio)
 $sql = "
     SELECT
         e.*,
@@ -63,40 +56,40 @@ $sql = "
     GROUP BY e.id
     ORDER BY e.data_evento ASC, e.hora_inicio ASC
 ";
-
 $stmt = $pdo->prepare($sql);
-$stmt->execute($params);
+$stmt->execute();
 $eventos = $stmt->fetchAll();
 
 require_once '../includes/header.php';
 ?>
 
 <div class="container mt-4">
-    <div class="row mb-4">
+    <div class="row mb-4 gy-3">
         <div class="col-md-6">
             <h2><i class="fas fa-calendar-check me-2"></i>Gerenciar Eventos</h2>
         </div>
-        <div class="col-md-6 text-end">
-             <div class="btn-group" role="group">
+        <div class="col-md-6 text-md-end">
+             <div class="btn-group w-100 w-md-auto" role="group">
                 <a href="eventos.php?filtro=pendente" class="btn btn-outline-warning <?php echo $filtro === 'pendente' ? 'active' : ''; ?>">Pendentes</a>
                 <a href="eventos.php?filtro=aprovado" class="btn btn-outline-success <?php echo $filtro === 'aprovado' ? 'active' : ''; ?>">Aprovados</a>
                 <a href="eventos.php?filtro=rejeitado" class="btn btn-outline-danger <?php echo $filtro === 'rejeitado' ? 'active' : ''; ?>">Rejeitados</a>
                 <a href="eventos.php?filtro=todos" class="btn btn-outline-secondary <?php echo $filtro === 'todos' ? 'active' : ''; ?>">Todos</a>
              </div>
-             <a href="dashboard.php" class="btn btn-secondary ms-2">Voltar</a>
+             <div class="mt-2 d-md-inline-block">
+                <a href="dashboard.php" class="btn btn-secondary w-100 w-md-auto">Voltar</a>
+             </div>
         </div>
     </div>
 
     <div class="card shadow">
-        <div class="card-body">
+        <div class="card-body p-0 p-md-3">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark d-none d-md-table-header-group">
                         <tr>
-                            <th>Data/Hora</th>
-                            <th>Evento / Depto</th>
+                            <th>Data</th>
+                            <th>Evento</th>
                             <th>Local</th>
-                            <th>Detalhes</th>
                             <th>Status</th>
                             <th class="text-end" style="min-width: 150px;">Ações</th>
                         </tr>
@@ -104,38 +97,50 @@ require_once '../includes/header.php';
                     <tbody>
                         <?php if (empty($eventos)): ?>
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">Nenhum evento encontrado com este filtro.</td>
+                                <td colspan="5" class="text-center py-4 text-muted">Nenhum evento encontrado com este filtro.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($eventos as $evento): ?>
-                                <tr>
-                                    <td>
-                                        <strong><?php echo date('d/m/Y', strtotime($evento['data_evento'])); ?></strong><br>
-                                        <?php echo date('H:i', strtotime($evento['hora_inicio'])); ?>
-                                        <?php if ($evento['hora_termino']): ?>
-                                            - <?php echo date('H:i', strtotime($evento['hora_termino'])); ?>
-                                        <?php endif; ?>
-                                        <?php if ($evento['data_termino']): ?>
-                                            <br><small class="text-muted">até <?php echo date('d/m', strtotime($evento['data_termino'])); ?></small>
-                                        <?php endif; ?>
+                                <!-- Layout Responsivo: Linha única no desktop, bloco no mobile -->
+                                <tr class="d-block d-md-table-row border-bottom">
+
+                                    <!-- Data -->
+                                    <td class="d-block d-md-table-cell px-3 py-2" data-label="Data">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 text-center me-3 d-md-none" style="min-width: 60px;">
+                                                <span class="d-block fw-bold"><?php echo date('d', strtotime($evento['data_evento'])); ?></span>
+                                                <small class="text-uppercase"><?php echo date('M', strtotime($evento['data_evento'])); ?></small>
+                                            </div>
+                                            <div>
+                                                <strong class="d-none d-md-inline"><?php echo date('d/m/Y', strtotime($evento['data_evento'])); ?></strong><br class="d-none d-md-inline">
+                                                <span class="text-muted">
+                                                    <i class="far fa-clock d-md-none me-1"></i>
+                                                    <?php echo date('H:i', strtotime($evento['hora_inicio'])); ?>
+                                                    <?php if ($evento['hora_termino']) echo ' - ' . date('H:i', strtotime($evento['hora_termino'])); ?>
+                                                </span>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <strong><?php echo htmlspecialchars($evento['titulo']); ?></strong><br>
-                                        <small class="text-primary"><?php echo htmlspecialchars($evento['dept_principal']); ?></small>
+
+                                    <!-- Evento / Depto -->
+                                    <td class="d-block d-md-table-cell px-3 py-2" data-label="Evento">
+                                        <strong class="d-block fs-5 fs-md-6"><?php echo htmlspecialchars($evento['titulo']); ?></strong>
+                                        <span class="badge bg-info text-dark mb-1"><?php echo htmlspecialchars($evento['dept_principal']); ?></span>
                                         <div class="small text-muted">Líder: <?php echo htmlspecialchars($evento['lider_nome']); ?></div>
                                     </td>
-                                    <td>
-                                        <?php if ($evento['local_tipo'] === 'igreja'): ?>
-                                            <span class="badge bg-secondary">Igreja</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-info text-dark">Externo</span>
-                                        <?php endif; ?>
-                                        <br>
-                                        <small><?php echo htmlspecialchars($evento['local_detalhe']); ?></small>
-                                    </td>
-                                    <td>
-                                        <!-- Botão Modal -->
-                                        <button type="button" class="btn btn-sm btn-info text-white"
+
+                                    <!-- Local / Detalhes (Ocultar parcialmente em mobile se necessário) -->
+                                    <td class="d-block d-md-table-cell px-3 py-2" data-label="Local">
+                                        <div class="mb-2">
+                                            <?php if ($evento['local_tipo'] === 'igreja'): ?>
+                                                <span class="badge bg-secondary"><i class="fas fa-church me-1"></i>Igreja</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-info text-dark"><i class="fas fa-map-marker-alt me-1"></i>Externo</span>
+                                            <?php endif; ?>
+                                            <small class="text-muted d-block d-md-inline ms-md-1"><?php echo htmlspecialchars($evento['local_detalhe']); ?></small>
+                                        </div>
+
+                                        <button type="button" class="btn btn-sm btn-outline-info w-100 w-md-auto"
                                             onclick="openEventModal(<?php echo htmlspecialchars(json_encode([
                                                 'titulo' => $evento['titulo'],
                                                 'dept' => $evento['dept_principal'],
@@ -147,38 +152,44 @@ require_once '../includes/header.php';
                                                 'apoio' => $evento['apoio_nomes'] ?? 'Nenhum',
                                                 'obs' => $evento['observacoes']
                                             ])); ?>)">
-                                            <i class="fas fa-eye me-1"></i> Ver Detalhes
+                                            <i class="fas fa-info-circle me-1"></i> Ver Detalhes
                                         </button>
                                     </td>
-                                    <td>
+
+                                    <!-- Status -->
+                                    <td class="d-block d-md-table-cell px-3 py-2" data-label="Status">
                                         <?php
                                         $badge = 'bg-secondary';
                                         if ($evento['status'] === 'pendente') $badge = 'bg-warning text-dark';
                                         if ($evento['status'] === 'aprovado') $badge = 'bg-success';
                                         if ($evento['status'] === 'rejeitado') $badge = 'bg-danger';
                                         ?>
-                                        <span class="badge <?php echo $badge; ?>"><?php echo ucfirst($evento['status']); ?></span>
+                                        <span class="badge <?php echo $badge; ?> w-auto"><?php echo ucfirst($evento['status']); ?></span>
                                     </td>
-                                    <td class="text-end">
-                                        <a href="editar_evento.php?id=<?php echo $evento['id']; ?>" class="btn btn-sm btn-primary mb-1" title="Editar"><i class="fas fa-edit"></i></a>
 
-                                        <?php if ($evento['status'] === 'pendente' || $evento['status'] === 'rejeitado'): ?>
-                                            <form action="eventos.php" method="POST" class="d-inline">
-                                                <input type="hidden" name="action" value="approve">
-                                                <input type="hidden" name="evento_id" value="<?php echo $evento['id']; ?>">
-                                                <input type="hidden" name="filtro_atual" value="<?php echo $filtro; ?>">
-                                                <button type="submit" class="btn btn-sm btn-success mb-1" title="Aprovar"><i class="fas fa-check"></i></button>
-                                            </form>
-                                        <?php endif; ?>
+                                    <!-- Ações -->
+                                    <td class="d-block d-md-table-cell px-3 py-3 text-md-end bg-light bg-md-white" data-label="Ações">
+                                        <div class="d-flex gap-2 justify-content-end">
+                                            <a href="editar_evento.php?id=<?php echo $evento['id']; ?>" class="btn btn-primary flex-fill flex-md-grow-0" title="Editar"><i class="fas fa-edit"></i></a>
 
-                                        <?php if ($evento['status'] === 'pendente' || $evento['status'] === 'aprovado'): ?>
-                                            <form action="eventos.php" method="POST" class="d-inline">
-                                                <input type="hidden" name="action" value="reject">
-                                                <input type="hidden" name="evento_id" value="<?php echo $evento['id']; ?>">
-                                                <input type="hidden" name="filtro_atual" value="<?php echo $filtro; ?>">
-                                                <button type="submit" class="btn btn-sm btn-danger mb-1" title="Rejeitar" onsubmit="return confirm('Rejeitar este evento?');"><i class="fas fa-times"></i></button>
-                                            </form>
-                                        <?php endif; ?>
+                                            <?php if ($evento['status'] === 'pendente' || $evento['status'] === 'rejeitado'): ?>
+                                                <form action="eventos.php" method="POST" class="d-inline flex-fill flex-md-grow-0">
+                                                    <input type="hidden" name="action" value="approve">
+                                                    <input type="hidden" name="evento_id" value="<?php echo $evento['id']; ?>">
+                                                    <input type="hidden" name="filtro_atual" value="<?php echo $filtro; ?>">
+                                                    <button type="submit" class="btn btn-success w-100" title="Aprovar"><i class="fas fa-check"></i></button>
+                                                </form>
+                                            <?php endif; ?>
+
+                                            <?php if ($evento['status'] === 'pendente' || $evento['status'] === 'aprovado'): ?>
+                                                <form action="eventos.php" method="POST" class="d-inline flex-fill flex-md-grow-0">
+                                                    <input type="hidden" name="action" value="reject">
+                                                    <input type="hidden" name="evento_id" value="<?php echo $evento['id']; ?>">
+                                                    <input type="hidden" name="filtro_atual" value="<?php echo $filtro; ?>">
+                                                    <button type="submit" class="btn btn-danger w-100" title="Rejeitar" onsubmit="return confirm('Rejeitar este evento?');"><i class="fas fa-times"></i></button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -190,7 +201,7 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<!-- Modal Detalhes -->
+<!-- Modal Detalhes (Mantido Igual) -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

@@ -30,23 +30,23 @@ require_once '../includes/header.php';
 ?>
 
 <div class="container mt-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-8">
+    <div class="row mb-4 align-items-center g-3">
+        <div class="col-md-8 text-center text-md-start">
             <h2><i class="fas fa-calendar-alt me-2"></i>Meus Eventos</h2>
-            <p class="text-muted">Gerencie os eventos dos seus departamentos.</p>
+            <p class="text-muted mb-0">Gerencie os eventos dos seus departamentos.</p>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="novo_evento.php" class="btn btn-primary btn-lg-custom shadow">
+        <div class="col-md-4 text-center text-md-end">
+            <a href="novo_evento.php" class="btn btn-primary btn-lg-custom shadow w-100 w-md-auto">
                 <i class="fas fa-plus me-2"></i>Novo Evento
             </a>
         </div>
     </div>
 
     <div class="card shadow">
-        <div class="card-body">
+        <div class="card-body p-0 p-md-3">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light d-none d-md-table-header-group">
                         <tr>
                             <th>Data/Hora</th>
                             <th>Evento</th>
@@ -65,42 +65,79 @@ require_once '../includes/header.php';
                             </tr>
                         <?php else: ?>
                             <?php foreach ($eventos as $evento): ?>
-                                <tr>
-                                    <td>
-                                        <strong><?php echo date('d/m/Y', strtotime($evento['data_evento'])); ?></strong><br>
-                                        <small><?php echo date('H:i', strtotime($evento['hora_inicio'])); ?></small>
-                                        <?php if ($evento['hora_termino']): ?>
-                                            - <small><?php echo date('H:i', strtotime($evento['hora_termino'])); ?></small>
-                                        <?php endif; ?>
-                                        <?php if ($evento['data_termino']): ?>
-                                            <br><small class="text-muted">Fim: <?php echo date('d/m', strtotime($evento['data_termino'])); ?></small>
-                                        <?php endif; ?>
+                                <!-- Layout Responsivo Leader: Stacked on mobile -->
+                                <tr class="d-block d-md-table-row border-bottom p-3">
+
+                                    <!-- Data -->
+                                    <td class="d-flex d-md-table-cell justify-content-between align-items-center px-3 py-2" data-label="Data">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 text-center me-3 d-md-none" style="min-width: 60px;">
+                                                <span class="d-block fw-bold"><?php echo date('d', strtotime($evento['data_evento'])); ?></span>
+                                                <small class="text-uppercase"><?php echo date('M', strtotime($evento['data_evento'])); ?></small>
+                                            </div>
+                                            <div>
+                                                <strong class="d-none d-md-inline"><?php echo date('d/m/Y', strtotime($evento['data_evento'])); ?></strong><br class="d-none d-md-inline">
+                                                <small class="text-muted">
+                                                    <i class="far fa-clock d-md-none me-1"></i>
+                                                    <?php echo date('H:i', strtotime($evento['hora_inicio'])); ?>
+                                                    <?php if ($evento['hora_termino']): ?>
+                                                        - <?php echo date('H:i', strtotime($evento['hora_termino'])); ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                                <?php if ($evento['data_termino']): ?>
+                                                    <br><small class="text-muted">Fim: <?php echo date('d/m', strtotime($evento['data_termino'])); ?></small>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status Badge (Moved to top right on mobile for visibility) -->
+                                        <div class="d-md-none">
+                                            <?php
+                                            $statusClass = 'bg-secondary';
+                                            $statusLabel = $evento['status'];
+                                            if ($evento['status'] === 'pendente') {
+                                                $statusClass = 'bg-warning text-dark';
+                                                $statusLabel = 'Pendente'; // Encurtado para mobile
+                                            } elseif ($evento['status'] === 'aprovado') {
+                                                $statusClass = 'bg-success';
+                                                $statusLabel = 'Aprovado';
+                                            } elseif ($evento['status'] === 'rejeitado') {
+                                                $statusClass = 'bg-danger';
+                                                $statusLabel = 'Rejeitado';
+                                            }
+                                            ?>
+                                            <span class="badge <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <strong><?php echo htmlspecialchars($evento['titulo']); ?></strong>
+
+                                    <!-- Evento -->
+                                    <td class="d-block d-md-table-cell px-3 py-1 py-md-2" data-label="Evento">
+                                        <strong class="fs-5 fs-md-6"><?php echo htmlspecialchars($evento['titulo']); ?></strong>
                                     </td>
-                                    <td><?php echo htmlspecialchars($evento['dept_nome']); ?></td>
-                                    <td>
+
+                                    <!-- Departamento -->
+                                    <td class="d-block d-md-table-cell px-3 py-1 py-md-2 text-muted" data-label="Departamento">
+                                        <small class="d-md-none text-uppercase fw-bold" style="font-size: 0.7rem;">Departamento:</small>
+                                        <?php echo htmlspecialchars($evento['dept_nome']); ?>
+                                    </td>
+
+                                    <!-- Local -->
+                                    <td class="d-block d-md-table-cell px-3 py-1 py-md-2 text-muted" data-label="Local">
+                                        <small class="d-md-none text-uppercase fw-bold" style="font-size: 0.7rem;">Local:</small>
                                         <?php if ($evento['local_tipo'] === 'igreja'): ?>
-                                            <span class="badge bg-secondary">Na Igreja</span>
+                                            <span class="badge bg-secondary d-none d-md-inline">Na Igreja</span>
+                                            <span class="d-md-none">Igreja</span>
                                         <?php else: ?>
-                                            <span class="badge bg-info text-dark">Externo</span>
+                                            <span class="badge bg-info text-dark d-none d-md-inline">Externo</span>
+                                            <span class="d-md-none">Externo</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+
+                                    <!-- Status (Desktop Only - Mobile is handled in Data cell) -->
+                                    <td class="d-none d-md-table-cell px-3 py-2">
                                         <?php
-                                        $statusClass = 'bg-secondary';
-                                        $statusLabel = $evento['status'];
-                                        if ($evento['status'] === 'pendente') {
-                                            $statusClass = 'bg-warning text-dark';
-                                            $statusLabel = 'Aguardando Aprovação';
-                                        } elseif ($evento['status'] === 'aprovado') {
-                                            $statusClass = 'bg-success';
-                                            $statusLabel = 'Aprovado';
-                                        } elseif ($evento['status'] === 'rejeitado') {
-                                            $statusClass = 'bg-danger';
-                                            $statusLabel = 'Rejeitado';
-                                        }
+                                        // Recalcular labels longos para desktop
+                                        if ($evento['status'] === 'pendente') $statusLabel = 'Aguardando Aprovação';
                                         ?>
                                         <span class="badge <?php echo $statusClass; ?> fs-6"><?php echo $statusLabel; ?></span>
                                     </td>
