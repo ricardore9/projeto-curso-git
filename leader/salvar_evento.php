@@ -90,10 +90,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $msg .= "<p><strong>Criado por:</strong> " . $_SESSION['user_name'] . "</p>";
         $msg .= "<p>Acesse o painel administrativo para aprovar.</p>";
 
-        send_admin_notification($assunto, $msg);
+        $email_enviado = send_admin_notification($assunto, $msg);
 
-        $_SESSION['flash_message'] = "Evento cadastrado com sucesso! Aguardando aprovação.";
-        $_SESSION['flash_type'] = "success";
+        if ($email_enviado) {
+            $_SESSION['flash_message'] = "Evento cadastrado com sucesso! Aguardando aprovação. Notificação enviada ao admin.";
+            $_SESSION['flash_type'] = "success";
+        } else {
+            $_SESSION['flash_message'] = "Evento cadastrado, mas <strong>erro ao enviar email de notificação</strong>. Verifique se o SMTP está configurado.";
+            $_SESSION['flash_type'] = "warning";
+        }
 
         // Redireciona para o painel correto
         if ($_SESSION['user_type'] === 'admin') {
