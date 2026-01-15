@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'includes/db.php';
+require_once 'includes/email.php';
 
 $action = $_POST['action'] ?? '';
 
@@ -53,6 +54,16 @@ if ($action === 'register') {
         }
 
         $pdo->commit();
+
+        // Notificar Admin
+        $assunto = "Novo Cadastro de Líder: " . $nome;
+        $msg = "<h3>Novo Líder Cadastrado</h3>";
+        $msg .= "<p><strong>Nome:</strong> $nome</p>";
+        $msg .= "<p><strong>Usuário:</strong> $username</p>";
+        $msg .= "<p><strong>Email:</strong> $email</p>";
+        $msg .= "<p>Acesse o painel administrativo para aprovar.</p>";
+
+        send_admin_notification($assunto, $msg);
 
         $_SESSION['flash_message'] = "Cadastro realizado com sucesso! Aguarde a aprovação do administrador.";
         $_SESSION['flash_type'] = "success";

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+require_once '../includes/email.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
@@ -80,6 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $pdo->commit();
+
+        // Notificar Admin
+        $assunto = "Novo Evento Criado: " . $titulo;
+        $msg = "<h3>Novo Evento Pendente</h3>";
+        $msg .= "<p><strong>Evento:</strong> $titulo</p>";
+        $msg .= "<p><strong>Data:</strong> " . date('d/m/Y', strtotime($data_evento)) . " às $hora_inicio</p>";
+        $msg .= "<p><strong>Criado por:</strong> " . $_SESSION['user_name'] . "</p>";
+        $msg .= "<p>Acesse o painel administrativo para aprovar.</p>";
+
+        send_admin_notification($assunto, $msg);
 
         $_SESSION['flash_message'] = "Evento cadastrado com sucesso! Aguardando aprovação.";
         $_SESSION['flash_type'] = "success";

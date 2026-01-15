@@ -32,7 +32,7 @@
 
                 <div class="text-center">
                     <p class="mb-2">Ainda não tem acesso?</p>
-                    <a href="register.php" class="btn btn-outline-warning">Cadastrar Novo Líder</a>
+                    <a href="register.php" class="btn btn-success btn-lg fw-bold w-100 shadow-sm">Cadastrar Novo Líder</a>
                 </div>
             </div>
         </div>
